@@ -1,0 +1,63 @@
+# ProFootballAI Environment Variables Template
+# Copy this file to .env and fill in your values
+
+# API Configuration
+API_FOOTBALL_KEY=your_api_key_here
+
+# Database Configuration (optional, defaults to SQLite)
+DATABASE_URL=sqlite:///data/profootball.db
+
+# Redis Configuration (optional, for distributed caching)
+REDIS_URL=redis://localhost:6379/0
+
+# Application Settings
+DEBUG=False
+LOG_LEVEL=INFO
+
+# Streamlit Configuration
+STREAMLIT_SERVER_PORT=8501
+STREAMLIT_SERVER_ADDRESS=localhost
+
+# Model Configuration
+MODEL_TYPE=ensemble
+MODEL_UPDATE_INTERVAL=86400  # seconds (24 hours)
+
+# API Rate Limiting
+API_RATE_LIMIT_HOUR=100
+API_RATE_LIMIT_DAY=1000
+
+# Security
+SECRET_KEY=your-secret-key-here
+ENCRYPT_SENSITIVE_DATA=True
+
+# External Services (optional)
+SLACK_WEBHOOK_URL=
+TELEGRAM_BOT_TOKEN=
+EMAIL_SMTP_SERVER=
+EMAIL_SMTP_PORT=587
+EMAIL_USERNAME=
+EMAIL_PASSWORD=
+
+# Performance Monitoring (optional)
+SENTRY_DSN=
+NEW_RELIC_LICENSE_KEY=
+
+# Feature Flags
+ENABLE_LIVE_SCORES=False
+ENABLE_ADVANCED_ANALYTICS=True
+ENABLE_BETTING_TIPS=True
+ENABLE_EMAIL_ALERTS=False
+
+# Betting Configuration
+DEFAULT_BANKROLL=1000
+MAX_STAKE_PERCENTAGE=5
+MIN_PROBABILITY_THRESHOLD=60
+
+# Cache Configuration
+CACHE_DEFAULT_TTL=3600
+CACHE_MAX_SIZE_MB=100
+
+# Backup Configuration
+BACKUP_ENABLED=True
+BACKUP_INTERVAL=86400  # seconds (24 hours)
+BACKUP_RETENTION_DAYS=30

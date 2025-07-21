@@ -1,0 +1,108 @@
+# ProFootballAI Makefile
+
+.PHONY: help install run test lint format clean docker-build docker-up docker-down backup
+
+# Default target
+help:
+	@echo "ProFootballAI Development Commands:"
+	@echo "  make install      Install dependencies"
+	@echo "  make run          Run the application"
+	@echo "  make test         Run tests"
+	@echo "  make lint         Run linters"
+	@echo "  make format       Format code"
+	@echo "  make clean        Clean temporary files"
+	@echo "  make docker-build Build Docker image"
+	@echo "  make docker-up    Start Docker services"
+	@echo "  make docker-down  Stop Docker services"
+	@echo "  make backup       Backup database"
+
+# Install dependencies
+install:
+	pip install --upgrade pip
+	pip install -r requirements.txt
+	pip install -r requirements-dev.txt
+
+# Run the application
+run:
+	streamlit run main.py
+
+# Run tests
+test:
+	pytest tests/ -v --cov=src --cov-report=html
+
+# Run linters
+lint:
+	flake8 src/ tests/
+	mypy src/
+	black --check src/ tests/
+	isort --check-only src/ tests/
+
+# Format code
+format:
+	black src/ tests/
+	isort src/ tests/
+
+# Clean temporary files
+clean:
+	find . -type d -name "__pycache__" -exec rm -rf {} +
+	find . -type f -name "*.pyc" -delete
+	find . -type f -name "*.pyo" -delete
+	find . -type f -name "*.log" -delete
+	rm -rf .pytest_cache
+	rm -rf .coverage
+	rm -rf htmlcov
+	rm -rf .mypy_cache
+
+# Docker commands
+docker-build:
+	docker-compose build
+
+docker-up:
+	docker-compose up -d
+
+docker-down:
+	docker-compose down
+
+docker-logs:
+	docker-compose logs -f
+
+# Database backup
+backup:
+	@echo "Creating backup..."
+	@mkdir -p backups
+	@cp data/profootball.db backups/profootball_$(shell date +%Y%m%d_%H%M%S).db
+	@echo "Backup created successfully"
+
+# Development setup
+dev-setup: install
+	cp .env.example .env
+	mkdir -p data logs cache models
+	@echo "Development environment ready!"
+	@echo "Edit .env file with your API key"
+
+# Production deployment
+deploy:
+	@echo "Deploying to production..."
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+	@echo "Deployment complete!"
+
+# Update models
+update-models:
+	python -m src.models.train_models
+
+# Generate documentation
+docs:
+	sphinx-build -b html docs/ docs/_build/html
+
+# Run specific UI page
+run-dashboard:
+	streamlit run main.py -- --page dashboard
+
+run-predictions:
+	streamlit run main.py -- --page predictions
+
+run-betting:
+	streamlit run main.py -- --page betting
+
+run-analytics:
+	streamlit run main.py -- --page analytics

@@ -1,0 +1,55 @@
+profootball_ai/
+│
+├── main.py                 # Entry point dell'applicazione
+├── config.py              # Configurazioni centralizzate
+├── requirements.txt       # Dipendenze del progetto
+├── README.md             # Documentazione
+├── .env.example          # Template variabili ambiente
+├── .gitignore           # File da ignorare in git
+│
+├── src/
+│   ├── __init__.py
+│   │
+│   ├── api/
+│   │   ├── __init__.py
+│   │   ├── football_api.py      # Client API-Football
+│   │   ├── rate_limiter.py      # Gestione rate limiting
+│   │   └── cache_manager.py     # Sistema di caching
+│   │
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── predictor.py         # Modello predittivo Over 2.5
+│   │   ├── ensemble.py          # Ensemble model avanzato
+│   │   ├── feature_engineering.py # Feature engineering
+│   │   └── bet_optimizer.py     # Ottimizzazione schedine
+│   │
+│   ├── data/
+│   │   ├── __init__.py
+│   │   ├── data_processor.py    # Processamento dati
+│   │   ├── statistics.py        # Calcoli statistici
+│   │   └── database.py          # Storage locale SQLite
+│   │
+│   ├── ui/
+│   │   ├── __init__.py
+│   │   ├── theme.py             # Tema e stili CSS
+│   │   ├── components.py        # Componenti UI riutilizzabili
+│   │   ├── pages/
+│   │   │   ├── __init__.py
+│   │   │   ├── dashboard.py     # Dashboard principale
+│   │   │   ├── predictions.py   # Pagina pronostici
+│   │   │   ├── betting_slips.py # Pagina schedine
+│   │   │   └── analytics.py     # Pagina analisi
+│   │   └── charts.py            # Grafici e visualizzazioni
+│   │
+│   └── utils/
+│       ├── __init__.py
+│       ├── validators.py        # Validazione dati
+│       ├── formatters.py        # Formattazione output
+│       ├── logger.py           # Sistema di logging
+│       └── exceptions.py       # Eccezioni custom
+│
+└── tests/
+    ├── __init__.py
+    ├── test_api.py
+    ├── test_models.py
+    └── test_utils.py
