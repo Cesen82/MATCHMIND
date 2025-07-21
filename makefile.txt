@@ -1,108 +1,189 @@
-# ProFootballAI Makefile
+# MATCHMIND Makefile
+# Automate common development tasks
 
-.PHONY: help install run test lint format clean docker-build docker-up docker-down backup
+.PHONY: help install test run clean docker setup lint format check migrate train backtest api dashboard scheduler all stop
 
 # Default target
 help:
-	@echo "ProFootballAI Development Commands:"
-	@echo "  make install      Install dependencies"
-	@echo "  make run          Run the application"
-	@echo "  make test         Run tests"
-	@echo "  make lint         Run linters"
-	@echo "  make format       Format code"
-	@echo "  make clean        Clean temporary files"
-	@echo "  make docker-build Build Docker image"
-	@echo "  make docker-up    Start Docker services"
-	@echo "  make docker-down  Stop Docker services"
-	@echo "  make backup       Backup database"
+	@echo "🧠 MATCHMIND Development Commands"
+	@echo "================================"
+	@echo ""
+	@echo "Setup & Installation:"
+	@echo "  make setup      - Complete initial setup"
+	@echo "  make install    - Install Python dependencies"
+	@echo "  make migrate    - Initialize/migrate database"
+	@echo ""
+	@echo "Development:"
+	@echo "  make run        - Run complete system (all services)"
+	@echo "  make api        - Run API server only"
+	@echo "  make dashboard  - Run Streamlit dashboard only"
+	@echo "  make scheduler  - Run task scheduler only"
+	@echo "  make stop       - Stop all services"
+	@echo ""
+	@echo "Data & Models:"
+	@echo "  make collect    - Collect latest data"
+	@echo "  make train      - Train prediction models"
+	@echo "  make evaluate   - Evaluate model performance"
+	@echo "  make backtest   - Run backtesting suite"
+	@echo ""
+	@echo "Code Quality:"
+	@echo "  make test       - Run test suite with coverage"
+	@echo "  make lint       - Run code linting (flake8 + mypy)"
+	@echo "  make format     - Auto-format code (black + isort)"
+	@echo "  make check      - Run all quality checks"
+	@echo ""
+	@echo "Docker:"
+	@echo "  make docker     - Build and run with Docker"
+	@echo "  make docker-build - Build Docker images only"
+	@echo "  make docker-up  - Start Docker containers"
+	@echo "  make docker-down - Stop Docker containers"
+	@echo ""
+	@echo "Maintenance:"
+	@echo "  make clean      - Clean temporary files"
+	@echo "  make logs       - Show application logs"
+	@echo "  make backup     - Backup database"
 
-# Install dependencies
+# Setup & Installation
+setup:
+	@echo "🚀 Running complete setup..."
+	@chmod +x quick_setup.sh
+	@./quick_setup.sh
+
 install:
-	pip install --upgrade pip
-	pip install -r requirements.txt
-	pip install -r requirements-dev.txt
+	@echo "📦 Installing dependencies..."
+	@pip install --upgrade pip
+	@pip install -r requirements.txt
+	@pip install -r requirements-dev.txt
+	@echo "✅ Dependencies installed"
 
-# Run the application
-run:
-	streamlit run main.py
+migrate:
+	@echo "🗄️ Initializing database..."
+	@python scripts/init_db_script.py
+	@echo "✅ Database ready"
 
-# Run tests
+# Development
+run: docker-up
+	@echo "🚀 Starting MATCHMIND system..."
+	@echo "Dashboard: http://localhost:8501"
+	@echo "API Docs: http://localhost:8000/docs"
+
+api:
+	@echo "🌐 Starting API server..."
+	@python -m api.api_server
+
+dashboard:
+	@echo "📊 Starting Streamlit dashboard..."
+	@streamlit run ui/main.py
+
+scheduler:
+	@echo "⏰ Starting task scheduler..."
+	@python -m services.scheduler
+
+stop: docker-down
+	@echo "🛑 Stopping all services..."
+
+# Data & Models
+collect:
+	@echo "📡 Collecting latest data..."
+	@python -m data.data_collector --days-back 7
+
+train:
+	@echo "🧠 Training prediction models..."
+	@python scripts/train_script.py
+
+evaluate:
+	@echo "📈 Evaluating model performance..."
+	@python -m services.model_evaluator
+
+backtest:
+	@echo "📊 Running backtesting suite..."
+	@python -m core.backtesting --strategy all --days 365
+
+# Code Quality
 test:
-	pytest tests/ -v --cov=src --cov-report=html
+	@echo "🧪 Running tests..."
+	@pytest tests/ -v --cov=. --cov-report=html --cov-report=term
 
-# Run linters
 lint:
-	flake8 src/ tests/
-	mypy src/
-	black --check src/ tests/
-	isort --check-only src/ tests/
+	@echo "🔍 Linting code..."
+	@flake8 . --max-line-length=100 --exclude=venv,__pycache__
+	@mypy . --ignore-missing-imports
 
-# Format code
 format:
-	black src/ tests/
-	isort src/ tests/
+	@echo "✨ Formatting code..."
+	@black . --line-length=100 --exclude=venv
+	@isort . --profile=black --skip=venv
 
-# Clean temporary files
-clean:
-	find . -type d -name "__pycache__" -exec rm -rf {} +
-	find . -type f -name "*.pyc" -delete
-	find . -type f -name "*.pyo" -delete
-	find . -type f -name "*.log" -delete
-	rm -rf .pytest_cache
-	rm -rf .coverage
-	rm -rf htmlcov
-	rm -rf .mypy_cache
+check: lint test
+	@echo "✅ All quality checks passed"
 
-# Docker commands
+# Docker
+docker: docker-build docker-up
+
 docker-build:
-	docker-compose build
+	@echo "🐳 Building Docker images..."
+	@docker-compose build
 
 docker-up:
-	docker-compose up -d
+	@echo "🚀 Starting Docker containers..."
+	@docker-compose up -d
 
 docker-down:
-	docker-compose down
+	@echo "🛑 Stopping Docker containers..."
+	@docker-compose down
 
 docker-logs:
-	docker-compose logs -f
+	@docker-compose logs -f
 
-# Database backup
+# Maintenance
+clean:
+	@echo "🧹 Cleaning temporary files..."
+	@find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+	@find . -type f -name "*.pyc" -delete 2>/dev/null || true
+	@find . -type f -name ".DS_Store" -delete 2>/dev/null || true
+	@rm -rf .pytest_cache .coverage htmlcov .mypy_cache
+	@rm -rf logs/*.log reports/*.html models/*.tmp
+	@echo "✅ Cleanup complete"
+
+logs:
+	@echo "📋 Recent logs:"
+	@tail -f logs/matchmind.log
+
 backup:
-	@echo "Creating backup..."
+	@echo "💾 Backing up database..."
 	@mkdir -p backups
-	@cp data/profootball.db backups/profootball_$(shell date +%Y%m%d_%H%M%S).db
-	@echo "Backup created successfully"
+	@pg_dump $${DATABASE_URL} > backups/matchmind_$$(date +%Y%m%d_%H%M%S).sql
+	@echo "✅ Backup complete"
 
-# Development setup
-dev-setup: install
-	cp .env.example .env
-	mkdir -p data logs cache models
-	@echo "Development environment ready!"
-	@echo "Edit .env file with your API key"
+# Development shortcuts
+dev: install migrate
+	@echo "🚀 Development environment ready!"
+	@make run
+
+fresh: clean install migrate train
+	@echo "🎉 Fresh installation complete!"
+
+# Performance monitoring
+monitor:
+	@echo "📊 Opening system monitor..."
+	@python -m webbrowser http://localhost:8501/analytics
+
+# Database operations
+db-reset:
+	@echo "⚠️ Resetting database..."
+	@python scripts/init_db_script.py --reset
+	@echo "✅ Database reset complete"
+
+db-seed:
+	@echo "🌱 Seeding database with sample data..."
+	@python scripts/seed_data.py
+	@echo "✅ Database seeded"
 
 # Production deployment
-deploy:
-	@echo "Deploying to production..."
-	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-	@echo "Deployment complete!"
+deploy-check:
+	@echo "🔍 Running deployment checks..."
+	@python scripts/deployment_check.py
 
-# Update models
-update-models:
-	python -m src.models.train_models
-
-# Generate documentation
-docs:
-	sphinx-build -b html docs/ docs/_build/html
-
-# Run specific UI page
-run-dashboard:
-	streamlit run main.py -- --page dashboard
-
-run-predictions:
-	streamlit run main.py -- --page predictions
-
-run-betting:
-	streamlit run main.py -- --page betting
-
-run-analytics:
-	streamlit run main.py -- --page analytics
+deploy-prod:
+	@echo "🚀 Deploying to production..."
+	@./scripts/deploy_production.sh
